@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700,900&display=swap');
+
+body{
+	font-family: 'Roboto', sans-serif;
+	background-image: url("../Images/Pattern.jpg");
+}
+
+.thumbnail-wrapper{
+	position: relative;
+	min-height: 110px;
+	overflow: hidden;
+	background-color:black;
+}
+
+.thumbnail-over-info{
+	margin: 0;
+	left: 10px;
+	padding: 0 5px;
+	position: absolute;
+	font-size: 0.9rem;
+	z-index: 1000;
+}
+
+.live{
+	top: 10px;
+	background-color: #e91916;
+}
+
+.count{
+	bottom: 10px;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.thumbnail-img{
+	width: 100%;
+	transform: scale(1.0);
+	transition: transform 0.1s ease-in;
+}
+
+.thumbnail-img:hover{
+	transform: scale(1.1);
+}
+
+.profile-img-wrapper{
+	border-radius: 50%;
+	border: 1px solid black;
+	overflow: hidden;
+	background-color:black;
+}
+
+.profile-img-wrapper img, .offline-profile-img-wrapper img{
+	transform: rotate(0deg) scale(1.0);
+	transition: transform 0.2s ease-in-out;
+}
+
+.profile-img-wrapper img:hover, .offline-profile-img-wrapper img:hover{
+	transform: rotate(360deg) scale(1.25);
+}
+
+.stream-title{
+	margin: 0;
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.stream-title, .stream-title a{
+	color: #c1c1c1;
+	text-decoration: none;
+}
+
+.stream-info{
+	margin: 0;
+	font-size: 1.0rem;
+}
+
+.stream-info, .stream-info a{
+	color: #5d5d5d;
+	text-decoration: none;
+}
+
+.stream-title a:hover, .stream-title:hover, .stream-info:hover, .stream-info a:hover{
+	color: #9147ff;
+}
+
+.testaaa{
+	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
+.tooltip.show {
+    opacity: 1;
+}
+
+.offline-profile-img-wrapper{
+	max-width: 50px;
+	border-radius: 50%;
+	border: 1px solid black;
+	overflow: hidden;
+	background-color:black;
+}
+
+.offline-profile-img-wrapper{
+	max-width: 50px;
+	border-radius: 50%;
+	border: 1px solid black;
+	overflow: hidden;
+	background-color:black;
+}
+
+.offline-sretamer-name a{
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+	color: #c1c1c1;
+}
+
+.offline-sretamer-name a:hover, #multitwitchLink a:hover{
+	color: #9147ff;
+}
+
+#onlineStreamsH3, #offlineStreamsH3, #loading h1{
+	font-size: 2.5rem;
+    font-weight: 900;
+	color: #c1c1c1;
+}
+
+#multitwitchLink a{
+	font-size: 1.5rem;
+    font-weight: 900;
+    text-decoration: none;
+	color: #c1c1c1;
+}
