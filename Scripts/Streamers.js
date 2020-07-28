@@ -1,5 +1,6 @@
 var spreadsheetID = "YourSpreadsheetID";
 var twitchApiClientID = 'YourTwitchApiClientID';
+var secret = 'YourSecretApiID';
 
 var url = "https://spreadsheets.google.com/feeds/list/" + spreadsheetID + "/1/public/values?alt=json";
 
@@ -52,87 +53,103 @@ $(document).ready(function(){
 });
 
 function getStreamInfo(streamersNamesUrlArray){
-	for(var i=0; i < streamersNamesUrlArray.length; i++){
-		$.ajax({
-			type: "GET",
-			url: "https://api.twitch.tv/helix/users?" + streamersNamesUrlArray[i].toLowerCase(),
-			headers:{
-				'Client-ID': twitchApiClientID
-			},
-			success: function(receivedUserInfo){
-				var userIDsUrlString = "";
-				if(receivedUserInfo.data[0] != null){
-					for(var i=0; i < receivedUserInfo.data.length; i++){
-						streamersCatalans.push([
-							receivedUserInfo.data[i].id, //0 id
-							receivedUserInfo.data[i].login, //1 login
-							receivedUserInfo.data[i].display_name, //2 display_name
-							receivedUserInfo.data[i].profile_image_url //3 profile_image_url
-						]);
+	$.ajax({
+		type: "POST",
+		url: "https://id.twitch.tv/oauth2/token",
+		data: {'client_id': twitchApiClientID, 'client_secret': secret, 'grant_type' : 'client_credentials'},
+		success: function(appToken){
+			for(var i=0; i < streamersNamesUrlArray.length; i++){
+				$.ajax({
+					type: "GET",
+					url: "https://api.twitch.tv/helix/users?" + streamersNamesUrlArray[i].toLowerCase(),
+					headers:{
+						'Client-ID': twitchApiClientID,
+						'Authorization': 'Bearer ' + appToken['access_token']
+					},
+					error: function(retorn){
+						console.log("Something went wrong! 1");
+					},
+					success: function(receivedUserInfo){
+						var userIDsUrlString = "";
+						if(receivedUserInfo.data[0] != null){
+							for(var i=0; i < receivedUserInfo.data.length; i++){
+								streamersCatalans.push([
+									receivedUserInfo.data[i].id, //0 id
+									receivedUserInfo.data[i].login, //1 login
+									receivedUserInfo.data[i].display_name, //2 display_name
+									receivedUserInfo.data[i].profile_image_url //3 profile_image_url
+								]);
 
-						userIDsUrlString += "user_id=" + receivedUserInfo.data[i].id;
-						if(i < receivedUserInfo.data.length - 1)
-							userIDsUrlString += "&";
-					}
+								userIDsUrlString += "user_id=" + receivedUserInfo.data[i].id;
+								if(i < receivedUserInfo.data.length - 1)
+									userIDsUrlString += "&";
+							}
 
-					$.ajax({
-						type: "GET",
-						url: "https://api.twitch.tv/helix/streams?" + userIDsUrlString,
-						headers:{
-							'Client-ID': twitchApiClientID
-						},
-						success: function(receivedStreamInfo){
-							if(receivedStreamInfo.data[0] != null){
-								var gamesIDsUrlString = "";
-								for(i=0; i < receivedStreamInfo.data.length; i++){
-									for(var j=0; j < streamersCatalans.length; j++){
-										if(receivedStreamInfo.data[i].user_id == streamersCatalans[j][0]){
-											liveStreamersCatalans.push([
-												streamersCatalans[j][0], //0 id
-												streamersCatalans[j][1], //1 login
-												streamersCatalans[j][2], //2 display_name
-												streamersCatalans[j][3], //3 profile_image_url
-												receivedStreamInfo.data[i].title, //4 stream title
-												receivedStreamInfo.data[i].viewer_count, //5 viewer_count
-												receivedStreamInfo.data[i].thumbnail_url, //6 stream thumbnail_url
-												receivedStreamInfo.data[i].game_id, ////7 gameID
-												null, //8 game name
-												null //9 game box_art_url
-											]);
-											break;
+							$.ajax({
+								type: "GET",
+								url: "https://api.twitch.tv/helix/streams?" + userIDsUrlString,
+								headers:{
+									'Client-ID': twitchApiClientID,
+									'Authorization': 'Bearer ' + appToken['access_token']
+								},
+								error: function(returnval) {
+									console.log("Something went wrong! 2");
+								},
+								success: function(receivedStreamInfo){
+									if(receivedStreamInfo.data[0] != null){
+										var gamesIDsUrlString = "";
+										for(i=0; i < receivedStreamInfo.data.length; i++){
+											for(var j=0; j < streamersCatalans.length; j++){
+												if(receivedStreamInfo.data[i].user_id == streamersCatalans[j][0]){
+													liveStreamersCatalans.push([
+														streamersCatalans[j][0], //0 id
+														streamersCatalans[j][1], //1 login
+														streamersCatalans[j][2], //2 display_name
+														streamersCatalans[j][3], //3 profile_image_url
+														receivedStreamInfo.data[i].title, //4 stream title
+														receivedStreamInfo.data[i].viewer_count, //5 viewer_count
+														receivedStreamInfo.data[i].thumbnail_url, //6 stream thumbnail_url
+														receivedStreamInfo.data[i].game_id, ////7 gameID
+														null, //8 game name
+														null //9 game box_art_url
+													]);
+													break;
+												}
+											}
+											gamesIDsUrlString += "id=" + receivedStreamInfo.data[i].game_id;
+											if(i < receivedStreamInfo.data.length - 1)
+												gamesIDsUrlString += "&";
 										}
-									}
-									gamesIDsUrlString += "id=" + receivedStreamInfo.data[i].game_id;
-									if(i < receivedStreamInfo.data.length - 1)
-										gamesIDsUrlString += "&";
-								}
-
-								$.ajax({
-									type: "GET",
-									url: "https://api.twitch.tv/helix/games?" + gamesIDsUrlString,
-									headers:{
-										'Client-ID': twitchApiClientID
-									},
-									success: function(receivedGameInfo){
-										if(receivedGameInfo.data[0] != null){
-											for(i=0; i < receivedGameInfo.data.length; i++){
-												for(j=0; j < liveStreamersCatalans.length; j++){
-													if(receivedGameInfo.data[i].id == liveStreamersCatalans[j][7]){
-														liveStreamersCatalans[j][8] = receivedGameInfo.data[i].name; //8 game name
-														liveStreamersCatalans[j][9] = receivedGameInfo.data[i].box_art_url; //9 game box_art_url
+										
+										$.ajax({
+											type: "GET",
+											url: "https://api.twitch.tv/helix/games?" + gamesIDsUrlString,
+											headers:{
+												'Client-ID': twitchApiClientID,
+												'Authorization': 'Bearer ' + appToken['access_token']
+											},
+											success: function(receivedGameInfo){
+												if(receivedGameInfo.data[0] != null){
+													for(i=0; i < receivedGameInfo.data.length; i++){
+														for(j=0; j < liveStreamersCatalans.length; j++){
+															if(receivedGameInfo.data[i].id == liveStreamersCatalans[j][7]){
+																liveStreamersCatalans[j][8] = receivedGameInfo.data[i].name; //8 game name
+																liveStreamersCatalans[j][9] = receivedGameInfo.data[i].box_art_url; //9 game box_art_url
+															}
+														}
 													}
 												}
 											}
-										}
+										});
 									}
-								});
-							}
+								}
+							});
 						}
-					});
-				}
+					}
+				});
 			}
-		});
-	}
+		}
+	});
 }
 
 $(document).ajaxStop(function () {
